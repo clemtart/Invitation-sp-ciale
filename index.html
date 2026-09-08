@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Invitation spéciale</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#ffe6e6,#ffd4d4);
+    overflow:hidden;
+}
+
+.page{
+    width:100vw;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    text-align:center;
+}
+
+/* Première page */
+
+#page1{
+    display:flex;
+    justify-content: flex-start; 
+    padding-top: 40px;
+}
+
+#page2{
+    display:none;
+    background:linear-gradient(135deg,#2ecc71,#27ae60);
+    color:white;
+}
+
+h1{
+    font-size:clamp(28px,8vw,40px);
+    margin-bottom:10px;
+    z-index: 10; 
+}
+
+h2{
+    font-size:clamp(18px,5vw,24px);
+    font-weight:normal;
+    margin-bottom:35px;
+}
+
+.zone{
+    position:relative;
+    width:min(95vw, 600px);
+    height:65vh; 
+    margin-top: 20px;
+}
+
+button{
+    border:none;
+    border-radius:30px;
+    padding:15px 25px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    transition: transform 0.2s ease, left 0.2s ease, top 0.2s ease; 
+}
+
+/* MODIFICATION : Position initiale pour mettre le bouton OUI à gauche au centre */
+#btn-oui{
+    background:#2ecc71;
+    color:white;
+    position:absolute;
+    left:calc(50% - 70px); /* Décalé légèrement à gauche */
+    top:50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+}
+
+/* MODIFICATION : Position initiale pour mettre le bouton NON à droite au centre */
+#btn-non{
+    background:#e74c3c;
+    color:white;
+    position:absolute;
+    left:calc(50% + 70px); /* Décalé légèrement à droite */
+    top:50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+}
+
+#message{
+    min-height:40px;
+    margin-top:10px;
+    font-size:18px;
+    color:#c0392b;
+    font-weight:bold;
+    max-width:90%;
+    z-index: 10;
+}
+
+#compteur{
+    margin-top:10px;
+    color:#555;
+    font-size:16px;
+}
+
+/* Animation deuxième page */
+
+.coeur{
+    font-size:80px;
+    animation:rebond 1s infinite alternate;
+}
+
+@keyframes rebond{
+
+from{
+transform:scale(1);
+}
+
+to{
+transform:scale(1.2);
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page" id="page1">
+
+<h1>On part à Barcelone ? 🇪🇸</h1>
+
+<div class="zone" id="zone">
+
+<button id="btn-oui">Oui🤫</button>
+<button id="btn-non">Non😒</button>
+
+</div>
+
+<div id="message"></div>
+
+</div>
+
+<div class="page" id="page2">
+
+<div class="coeur">🥳</div>
+
+<h1>Enfin t'es arrivée ici !</h1>
+
+<p>Prépare tes affaires on part du 22 au 25/09 ✈️</p>
+
+
+</div>
+
+<script>
+
+const btnOui=document.getElementById("btn-oui");
+const btnNon=document.getElementById("btn-non");
+const zone=document.getElementById("zone");
+const message=document.getElementById("message");
+
+let tentatives=0;
+
+function deplacerBouton(){
+
+const marge=40; 
+
+const maxX=zone.clientWidth-btnNon.offsetWidth;
+const maxY=zone.clientHeight-btnNon.offsetHeight;
+
+let x,y,collision=true;
+
+// Calcule la position réelle du bouton OUI par rapport à la zone parente
+const ouiX=btnOui.offsetLeft - (btnOui.offsetWidth / 2);
+const ouiY=btnOui.offsetTop - (btnOui.offsetHeight / 2);
+
+while(collision){
+
+x=Math.random()*maxX;
+y=Math.random()*maxY;
+
+// Vérification stricte pour ne jamais toucher le bouton OUI
+collision=
+x < ouiX + btnOui.offsetWidth + marge &&
+x + btnNon.offsetWidth > ouiX - marge &&
+y < ouiY + btnOui.offsetHeight + marge &&
+y + btnNon.offsetHeight > ouiY - marge;
+
+}
+
+// Retire l'alignement CSS translate(-50%, -50%) du démarrage pour appliquer les nouvelles coordonnées
+btnNon.style.transform = "none"; 
+btnNon.style.left=x+"px";
+btnNon.style.top=y+"px";
+
+// Rétrécissement du bouton NON
+const echelleNon = Math.max(0.4, 1 - tentatives * 0.05); 
+btnNon.style.transform = `scale(${echelleNon})`;
+
+}
+
+function clicNon(){
+
+tentatives++;
+
+deplacerBouton();
+
+// Le bouton OUI grossit en gardant son centrage d'origine
+btnOui.style.transform=`translate(-50%, -50%) scale(${1+tentatives*0.05})`;
+
+if(tentatives===2)
+message.textContent="Tu hésites vraiment ?";
+
+if(tentatives===3)
+message.textContent="";
+
+if(tentatives===5){
+message.textContent="Je vais mal le prendre là 😳";
+}
+if(tentatives===6){
+message.textContent="";
+}
+
+if(tentatives===9){
+message.textContent="Tu ne l'auras jamais 😂";
+}
+if(tentatives===10){
+message.textContent="";
+}
+
+if(tentatives===12){
+message.textContent="Le bouton OUI est juste là... 👀";
+}
+if(tentatives===13){
+message.textContent="";
+}
+
+if(tentatives>=15){
+message.textContent="Je pense que tu n'as plus le choix 🤭"
+
+btnNon.style.display="none";
+message.style.display="block";
+
+btnOui.style.left="50%";
+btnOui.style.top="50%";
+btnOui.style.transform="translate(-50%, -50%) scale(1.8)";
+
+}
+
+}
+
+btnNon.addEventListener("mouseenter",deplacerBouton);
+btnNon.addEventListener("touchstart",function(e){
+e.preventDefault();
+clicNon();
+});
+
+btnNon.addEventListener("click",clicNon);
+
+btnOui.addEventListener("click",function(){
+
+document.getElementById("page1").style.display="none";
+document.getElementById("page2").style.display="flex";
+
+});
+
+</script>
+
+</body>
+</html>
