@@ -35,7 +35,7 @@ body{
 #page1{
     display:flex;
     justify-content: flex-start; 
-    padding-top: 40px;
+    padding-top: 20px; /* Plus d'espace en haut */
 }
 
 #page2{
@@ -45,8 +45,8 @@ body{
 }
 
 h1{
-    font-size:clamp(28px,8vw,40px);
-    margin-bottom:10px;
+    font-size:clamp(24px,7vw,40px); /* Un poil plus petit sur mini écrans */
+    margin-bottom:5px;
     z-index: 10; 
 }
 
@@ -56,11 +56,24 @@ h2{
     margin-bottom:35px;
 }
 
+/* CORRECTION : Le message est stylisé pour être au-dessus et bien visible */
+#message{
+    min-height:30px;
+    margin-top:5px;
+    margin-bottom: 5px;
+    font-size: clamp(16px, 4.5vw, 20px);
+    color:#c0392b;
+    font-weight:bold;
+    max-width:90%;
+    z-index: 10;
+}
+
+/* CORRECTION : Hauteur ajustée pour mobile pour ne pas écraser l'écran */
 .zone{
     position:relative;
     width:min(95vw, 600px);
-    height:65vh; 
-    margin-top: 20px;
+    height:55vh; 
+    margin-top: 10px;
 }
 
 button{
@@ -73,36 +86,24 @@ button{
     transition: transform 0.2s ease, left 0.2s ease, top 0.2s ease; 
 }
 
-/* MODIFICATION : Position initiale pour mettre le bouton OUI à gauche au centre */
 #btn-oui{
     background:#2ecc71;
     color:white;
     position:absolute;
-    left:calc(50% - 70px); /* Décalé légèrement à gauche */
+    left:calc(50% - 70px); 
     top:50%;
     transform: translate(-50%, -50%);
     z-index: 5;
 }
 
-/* MODIFICATION : Position initiale pour mettre le bouton NON à droite au centre */
 #btn-non{
     background:#e74c3c;
     color:white;
     position:absolute;
-    left:calc(50% + 70px); /* Décalé légèrement à droite */
+    left:calc(50% + 70px); 
     top:50%;
     transform: translate(-50%, -50%);
     z-index: 5;
-}
-
-#message{
-    min-height:40px;
-    margin-top:10px;
-    font-size:18px;
-    color:#c0392b;
-    font-weight:bold;
-    max-width:90%;
-    z-index: 10;
 }
 
 #compteur{
@@ -139,14 +140,15 @@ transform:scale(1.2);
 
 <h1>On part à Barcelone ? 🇪🇸</h1>
 
+<!-- CORRECTION : Le bloc message a été déplacé ICI pour être au-dessus de la zone des boutons -->
+<div id="message"></div>
+
 <div class="zone" id="zone">
 
 <button id="btn-oui">Oui🤫</button>
 <button id="btn-non">Non😒</button>
 
 </div>
-
-<div id="message"></div>
 
 </div>
 
@@ -179,7 +181,6 @@ const maxY=zone.clientHeight-btnNon.offsetHeight;
 
 let x,y,collision=true;
 
-// Calcule la position réelle du bouton OUI par rapport à la zone parente
 const ouiX=btnOui.offsetLeft - (btnOui.offsetWidth / 2);
 const ouiY=btnOui.offsetTop - (btnOui.offsetHeight / 2);
 
@@ -188,7 +189,6 @@ while(collision){
 x=Math.random()*maxX;
 y=Math.random()*maxY;
 
-// Vérification stricte pour ne jamais toucher le bouton OUI
 collision=
 x < ouiX + btnOui.offsetWidth + marge &&
 x + btnNon.offsetWidth > ouiX - marge &&
@@ -197,74 +197,57 @@ y + btnNon.offsetHeight > ouiY - marge;
 
 }
 
-// Retire l'alignement CSS translate(-50%, -50%) du démarrage pour appliquer les nouvelles coordonnées
 btnNon.style.transform = "none"; 
 btnNon.style.left=x+"px";
 btnNon.style.top=y+"px";
 
-// Rétrécissement du bouton NON
 const echelleNon = Math.max(0.4, 1 - tentatives * 0.05); 
 btnNon.style.transform = `scale(${echelleNon})`;
 
 }
 
-function clicNon(){
-
-tentatives++;
-
-deplacerBouton();
-
-// Le bouton OUI grossit en gardant son centrage d'origine
-btnOui.style.transform=`translate(-50%, -50%) scale(${1+tentatives*0.05})`;
-
-if(tentatives===2)
-message.textContent="Tu hésites vraiment ?";
-
-if(tentatives===3)
-message.textContent="";
-
-if(tentatives===5){
-message.textContent="Je vais mal le prendre là 😳";
-}
-if(tentatives===6){
-message.textContent="";
+function clicNon() {
+    tentatives++;
+    deplacerBouton();
+    mettreAJourMessages();
 }
 
-if(tentatives===9){
-message.textContent="Tu ne l'auras jamais 😂";
-}
-if(tentatives===10){
-message.textContent="";
-}
-
-if(tentatives===12){
-message.textContent="Le bouton OUI est juste là... 👀";
-}
-if(tentatives===13){
-message.textContent="";
-}
-
-if(tentatives>=15){
-message.textContent="Je pense que tu n'as plus le choix 🤭"
-
-btnNon.style.display="none";
-message.style.display="block";
-
-btnOui.style.left="50%";
-btnOui.style.top="50%";
-btnOui.style.transform="translate(-50%, -50%) scale(1.8)";
-
-}
-
-}
-
-btnNon.addEventListener("mouseenter",deplacerBouton);
-btnNon.addEventListener("touchstart",function(e){
-e.preventDefault();
-clicNon();
+btnNon.addEventListener("mouseenter", function() {
+    tentatives++;
+    deplacerBouton();
+    mettreAJourMessages();
 });
 
-btnNon.addEventListener("click",clicNon);
+btnNon.addEventListener("touchstart", function(e){
+    e.preventDefault();
+    tentatives++;
+    deplacerBouton();
+    mettreAJourMessages();
+});
+
+btnNon.addEventListener("click", clicNon);
+
+function mettreAJourMessages() {
+    btnOui.style.transform=`translate(-50%, -50%) scale(${1+tentatives*0.05})`;
+
+    if(tentatives===2) message.textContent="Tu hésites vraiment ?";
+    if(tentatives===3) message.textContent="";
+    if(tentatives===5) message.textContent="Je vais mal le prendre là 😳";
+    if(tentatives===6) message.textContent="";
+    if(tentatives===9) message.textContent="Tu ne l'auras jamais 😂";
+    if(tentatives===10) message.textContent="";
+    if(tentatives===12) message.textContent="Le bouton OUI est juste là... 👀";
+    if(tentatives===13) message.textContent="";
+
+    if(tentatives>=15){
+        message.textContent="Je pense que tu n'as plus le choix 🤭"
+        btnNon.style.display="none";
+        message.style.display="block";
+        btnOui.style.left="50%";
+        btnOui.style.top="50%";
+        btnOui.style.transform="translate(-50%, -50%) scale(1.8)";
+    }
+}
 
 btnOui.addEventListener("click",function(){
 
